@@ -72,11 +72,17 @@ async function seed() {
       });
     }
     
-    console.log('Seeded users successfully!');
-    console.log('Generated passwords for development:');
-    createdUsers.forEach(user => {
-      console.log(`${user.email} (${user.role}): ${user.password}`);
-    });
+    console.log('✅ Seeded users successfully!');
+    
+    // Only show generated passwords in development
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('🔑 Generated passwords for development:');
+      createdUsers.forEach(user => {
+        console.log(`   ${user.email} (${user.role}): ${user.password}`);
+      });
+    } else {
+      console.log('🔑 Secure passwords generated for production users');
+    }
     
     mongoose.disconnect();
   } catch (error) {

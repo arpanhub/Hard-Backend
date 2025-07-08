@@ -24,11 +24,15 @@ A secure Node.js/Express.js backend API for a Role-Based Access Control blog pla
   - Comment system with moderation
 
 - **Security Features**
-  - Password hashing with bcrypt
+  - Password hashing with bcrypt (12 salt rounds)
+  - JWT secret validation and strength checking
   - Input validation and sanitization
-  - Rate limiting
-  - CORS protection
-  - XSS protection
+  - Rate limiting with IP-based tracking
+  - CORS protection with strict policies
+  - XSS protection with comprehensive security headers
+  - Error sanitization to prevent information disclosure
+  - Environment variable validation at startup
+  - Secure token generation for all auth flows
 
 ## 🛠 Tech Stack
 
@@ -68,46 +72,62 @@ npm install
 
 ### 3. Environment Configuration
 
-Create a `.env` file in the root directory:
+Create a `.env` file in the root directory using the provided example:
 
+```bash
+# Copy the example environment file
+cp .env.example .env
+```
+
+**Important Security Notes:**
+- Generate a cryptographically secure JWT secret (at least 32 characters)
+- Use strong, unique passwords for production
+- Never commit your `.env` file to version control
+- The application validates environment variables at startup
+
+**Required Environment Variables:**
 ```env
-# Server Configuration
-NODE_ENV=development
-PORT=5000
-
 # Database
 MONGODB_URI=mongodb://localhost:27017/rbac-blog
-# OR for MongoDB Atlas:
-# MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/rbac-blog
 
-# JWT Configuration
+# JWT Configuration (CRITICAL - Generate secure random secret)
 JWT_SECRET=your-super-secure-jwt-secret-key-min-32-characters
 JWT_EXPIRE=7d
-JWT_REFRESH_SECRET=your-refresh-token-secret-key
-JWT_REFRESH_EXPIRE=30d
 
 # Email Configuration (Gmail SMTP)
 EMAIL_HOST=smtp.gmail.com
 EMAIL_PORT=587
 EMAIL_USER=your-email@gmail.com
 EMAIL_PASS=your-gmail-app-password
-EMAIL_FROM=noreply@yourblog.com
-
-# Google OAuth
-GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
-GOOGLE_CLIENT_SECRET=your-google-client-secret
-
-# Cloudinary (Image Upload)
-CLOUDINARY_CLOUD_NAME=your-cloudinary-cloud-name
-CLOUDINARY_API_KEY=your-cloudinary-api-key
-CLOUDINARY_API_SECRET=your-cloudinary-api-secret
 
 # Frontend URL
 FRONTEND_URL=http://localhost:3000
 
-# Admin Configuration
-ADMIN_EMAIL=admin@yourblog.com
-ADMIN_PASSWORD=SecureAdminPassword123!
+# Server Configuration
+PORT=5000
+NODE_ENV=development
+```
+
+**Optional Environment Variables:**
+```env
+# Seed Data Passwords (for development only)
+SEED_ADMIN_PASSWORD=secure-admin-password
+SEED_USER_PASSWORD=secure-user-password
+
+# Google OAuth (if using OAuth)
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+
+# Cloudinary (if using image upload)
+CLOUDINARY_CLOUD_NAME=your-cloudinary-cloud-name
+CLOUDINARY_API_KEY=your-cloudinary-api-key
+CLOUDINARY_API_SECRET=your-cloudinary-api-secret
+```
+
+**Generate a secure JWT secret:**
+```bash
+# Use Node.js to generate a secure random secret
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
 
 ### 4. Database Setup
@@ -428,6 +448,62 @@ sudo systemctl status mongod
 # Check authorized redirect URIs
 # Ensure Google+ API is enabled
 ```
+
+**Environment Security Validation Failed**
+```bash
+# Check that all required environment variables are set
+# Ensure JWT_SECRET is at least 32 characters long
+# Verify JWT_SECRET is cryptographically secure
+# Check that no weak or common secrets are used
+```
+
+**Rate Limiting Issues**
+```bash
+# Check if rate limits are being exceeded
+# Review IP-based rate limiting configuration
+# Verify rate limiting is properly configured for your use case
+```
+
+## 🛡️ Security
+
+This application implements comprehensive security measures to protect against common vulnerabilities:
+
+### Authentication & Authorization
+- JWT-based authentication with secure token generation
+- Role-based access control (Admin/User)
+- Email verification for new user accounts
+- Secure password reset functionality
+
+### Secret Management
+- JWT secret validation and strength checking at startup
+- No hardcoded passwords or secrets in codebase
+- Secure random password generation for seed data
+- Environment variable validation
+
+### Rate Limiting
+- IP-based rate limiting for all authentication endpoints
+- Specific limits for login attempts, password resets, and registrations
+- Configurable rate limiting thresholds
+
+### Data Protection
+- Password hashing with bcrypt (12 salt rounds)
+- Input validation and sanitization
+- Error message sanitization to prevent information disclosure
+- Secure token generation for all authentication flows
+
+### Security Headers
+- Comprehensive security headers using Helmet.js
+- Content Security Policy (CSP) implementation
+- HSTS, XSS protection, and other security headers
+- Server fingerprinting prevention
+
+### Additional Security Measures
+- CORS configuration with strict origin policies
+- Request size limits to prevent DoS attacks
+- Comprehensive error handling with security considerations
+- Security validation at application startup
+
+**For detailed security information, see [SECURITY.md](SECURITY.md)**
 
 **File Upload Issues**
 ```bash

@@ -23,3 +23,12 @@ dist-ssr
 *.sln
 *.sw?
 .env
+
+# Security test files
+test-security.js
+security-test.js
+
+# Temporary files
+/tmp
+temp/
+*.tmp
